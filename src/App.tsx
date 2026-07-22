@@ -15,36 +15,35 @@ const App: React.FC<AppProps> = ({ options }) => {
 
   const handlePayNow = async () => {
     if (selectedPayment === 'cod') {
-      // For COD, skip transaction ID and go directly to success
       setTransactionId(null);
       setPaymentStatus('success');
     } else {
-      // For online payments, generate transaction ID and show processing
-      const txnId = `TXN_${Date.now()}_${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+      const txnId = `TXN_${Date.now()}_${Math.random().toString(36).substring(2, 11).toUpperCase()}`;
       setTransactionId(txnId);
       setPaymentStatus('processing');
-      
+
       setTimeout(() => {
         setPaymentStatus('success');
       }, 3000);
     }
   };
 
+  // 1. Dispatch custom event to the host instead of using window.location.href
   const handleReturnToWebsite = () => {
-    const returnUrl = options.returnUrl || 'https://merchant-website.com';
-    const params = new URLSearchParams({
+    const paymentPayload = {
       status: 'success',
       amount: options.price,
       currency: options.currency || 'INR',
-      paymentMethod: selectedPayment === 'cod' ? 'cash' : selectedPayment
-    });
+      paymentMethod: selectedPayment === 'cod' ? 'cash' : selectedPayment,
+      transactionId: selectedPayment !== 'cod' ? transactionId : null
+    };
 
-    // Only add transaction ID for non-COD payments
-    if (transactionId && selectedPayment !== 'cod') {
-      params.append('transactionId', transactionId);
-    }
-
-    window.location.href = `${returnUrl}?${params.toString()}`;
+    // Trigger custom event on the shared window object
+    window.dispatchEvent(
+      new CustomEvent("payment-widget-success", {
+        detail: paymentPayload,
+      })
+    );
   };
 
   if (paymentStatus === 'processing') {
