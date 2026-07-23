@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { PaymentSelectionScreen } from "./components/PaymentSelectionScreen";
+import { AllowedPaymentMethods, PaymentSelectionScreen } from "./components/PaymentSelectionScreen";
 import { ProcessingScreen } from "./components/ProcessingScreen";
 import { SuccessScreen } from "./components/SuccessScreen";
 import { CaasInitOption } from "./index.widget";
@@ -9,12 +9,13 @@ interface AppProps {
 }
 
 const App: React.FC<AppProps> = ({ options }) => {
-  const [selectedPayment, setSelectedPayment] = useState<'googlepay' | 'phonepay' | 'cod'>('googlepay');
+  const [selectedPayment, setSelectedPayment] = useState<AllowedPaymentMethods>('GOOGLE_PAY');
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'success'>('idle');
   const [transactionId, setTransactionId] = useState<string | null>(null);
 
   const handlePayNow = async () => {
-    if (selectedPayment === 'cod') {
+    // 1. Updated condition to match uppercase "COD"
+    if (selectedPayment === 'COD') {
       setTransactionId(null);
       setPaymentStatus('success');
     } else {
@@ -28,17 +29,16 @@ const App: React.FC<AppProps> = ({ options }) => {
     }
   };
 
-  // 1. Dispatch custom event to the host instead of using window.location.href
   const handleReturnToWebsite = () => {
     const paymentPayload = {
       status: 'success',
       amount: options.price,
       currency: options.currency || 'INR',
-      paymentMethod: selectedPayment === 'cod' ? 'cash' : selectedPayment,
-      transactionId: selectedPayment !== 'cod' ? transactionId : null
+      // 2. Pass the direct uppercase selected payment value to match host/backend expectations
+      paymentMethod: selectedPayment, 
+      transactionId: selectedPayment !== 'COD' ? transactionId : null
     };
 
-    // Trigger custom event on the shared window object
     window.dispatchEvent(
       new CustomEvent("payment-widget-success", {
         detail: paymentPayload,

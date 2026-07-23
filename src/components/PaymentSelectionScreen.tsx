@@ -1,11 +1,15 @@
+import React from "react";
 import { CaasInitOption } from "../index.widget";
 import { DetailRow } from "./DetailRow";
 import { PaymentOption } from "./PaymentOption";
 
+// 1. Updated the type union to match your exact paymentMethods array strings
+export type AllowedPaymentMethods = "COD" | "UPI" | "CARD" | "NET_BANKING" | "GOOGLE_PAY" | "PHONE_PE";
+
 interface PaymentSelectionScreenProps {
   options: CaasInitOption;
-  selectedPayment: 'googlepay' | 'phonepay' | 'cod';
-  onSelectPayment: (method: 'googlepay' | 'phonepay' | 'cod') => void;
+  selectedPayment: AllowedPaymentMethods;
+  onSelectPayment: (method: AllowedPaymentMethods) => void;
   onPayNow: () => void;
 }
 
@@ -14,113 +18,119 @@ export const PaymentSelectionScreen: React.FC<PaymentSelectionScreenProps> = ({
   selectedPayment,
   onSelectPayment,
   onPayNow
-}) => (
-  <div
-    style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '20px'
-    }}
-  >
-    <div
-      style={{
-        background: 'white',
-        borderRadius: '24px',
-        padding: '40px',
-        maxWidth: '600px',
-        width: '100%',
-        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
-      }}
-    >
-      <h1
-        style={{
-          fontSize: '28px',
-          fontWeight: '700',
-          marginBottom: '32px',
-          textAlign: 'center',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text'
-        }}
-      >
-        Choose Payment Method
-      </h1>
+}) => {
+  return (
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4 antialiased">
+      <div className="w-full  bg-white rounded-3xl shadow-xl p-6 border border-gray-100/80">
 
-      <div style={{ display: 'flex', gap: '12px', marginBottom: '32px', flexWrap: 'wrap' }}>
-        <PaymentOption
-          label="Cash on Delivery"
-          value="cod"
-          selected={selectedPayment === 'cod'}
-          onSelect={() => onSelectPayment('cod')}
-          color="#10b981"
-        />
-        <PaymentOption
-          label="Google Pay"
-          value="googlepay"
-          selected={selectedPayment === 'googlepay'}
-          onSelect={() => onSelectPayment('googlepay')}
-          color="#3b82f6"
-        />
-        <PaymentOption
-          label="PhonePe"
-          value="phonepay"
-          selected={selectedPayment === 'phonepay'}
-          onSelect={() => onSelectPayment('phonepay')}
-          color="#7c3aed"
-        />
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 mx-auto rounded-full bg-blue-50 flex items-center justify-center mb-4 border border-blue-100">
+            <svg
+              className="w-8 h-8 text-blue-600"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
+              />
+            </svg>
+          </div>
+
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+            Choose Payment Method
+          </h1>
+
+          <p className="text-gray-500 mt-1 text-sm">
+            Securely complete your payment
+          </p>
+        </div>
+
+        {/* Payment Options Stack - Values now match the uppercase enum string layout */}
+        <div className="flex gap-2">
+          <PaymentOption
+            label="COD"
+            value="COD"
+            selected={selectedPayment === "COD"}
+            onSelect={() => onSelectPayment("COD")}
+            color="#2563eb"
+          />
+
+          <PaymentOption
+            label="Google Pay"
+            value="GOOGLE_PAY"
+            selected={selectedPayment === "GOOGLE_PAY"}
+            onSelect={() => onSelectPayment("GOOGLE_PAY")}
+            color="#2563eb"
+          />
+
+          <PaymentOption
+            label="PhonePe"
+            value="PHONE_PE"
+            selected={selectedPayment === "PHONE_PE"}
+            onSelect={() => onSelectPayment("PHONE_PE")}
+            color="#2563eb"
+          />
+        </div>
+
+        {/* Summary Details Panel */}
+        <div className="bg-gray-50 rounded-2xl border border-gray-200 p-5 mt-8">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-4">
+            Payment Summary
+          </h3>
+
+          <div className="space-y-3">
+            <DetailRow
+              label="Merchant"
+              value={options.merchantName || "Demo Merchant"}
+            />
+
+            <DetailRow
+              label="Currency"
+              value={options.currency || "INR"}
+            />
+
+            <div className="border-t border-gray-200/60 pt-3 mt-1">
+              <DetailRow
+                label="Amount"
+                value={`₹${options.price}`}
+                highlight
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Primary Dynamic Action CTA */}
+        <button
+          onClick={onPayNow}
+          className="w-full h-14 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold text-lg hover:from-blue-700 hover:to-blue-600 active:scale-[0.99] transform transition-all duration-150 shadow-md shadow-blue-500/10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        >
+          {selectedPayment === "COD" ? "Confirm Order" : "Proceed to Pay"}
+        </button>
+
+        {/* Security Trust Badging Footer */}
+        <div className="mt-6 flex items-center justify-center gap-1.5 text-xs font-medium text-gray-400">
+          <svg
+            className="w-4 h-4 text-emerald-500"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+            />
+          </svg>
+
+          <span>100% Secure Encrypted Payment</span>
+        </div>
       </div>
-
-      <div
-        style={{
-          background: '#f9fafb',
-          padding: '24px',
-          borderRadius: '16px',
-          marginBottom: '32px'
-        }}
-      >
-        <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: '#111827' }}>
-          Payment Summary
-        </h3>
-        <DetailRow label="Merchant" value={options.merchantName || 'Demo Merchant'} />
-        <DetailRow label="Currency" value={options.currency || 'INR'} />
-        <DetailRow label="Total Amount" value={`₹${options.price}`} highlight />
-      </div>
-
-      <button
-        onClick={onPayNow}
-        style={{
-          width: '100%',
-          padding: '18px',
-          background: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)',
-          color: 'white',
-          border: 'none',
-          borderRadius: '12px',
-          fontSize: '18px',
-          fontWeight: '600',
-          cursor: 'pointer',
-          boxShadow: '0 10px 15px -3px rgba(124, 58, 237, 0.5)',
-          transition: 'all 0.2s',
-          marginBottom: '16px'
-        }}
-        onMouseOver={(e) => {
-          e.currentTarget.style.transform = 'translateY(-4px)';
-          e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(124, 58, 237, 0.5)';
-        }}
-        onMouseOut={(e) => {
-          e.currentTarget.style.transform = 'translateY(0)';
-          e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(124, 58, 237, 0.5)';
-        }}
-      >
-        {selectedPayment === 'cod' ? 'Confirm Order' : 'Pay Now'}
-      </button>
-
-      <p style={{ textAlign: 'center', fontSize: '12px', color: '#9ca3af' }}>
-        Secure payment powered by Demo Gateway
-      </p>
     </div>
-  </div>
-);
+  );
+};
