@@ -37,7 +37,7 @@ const App: React.FC<AppProps> = ({ options }) => {
   const handleReturnToWebsite = () => {
     // Fallback URL if returnUrl is missing in options
     const baseReturnUrl = options.returnUrl || 'http://localhost:5173/orders';
-    
+
     // Construct transaction search query parameters
     const params = new URLSearchParams({
       status: 'success',
@@ -52,7 +52,9 @@ const App: React.FC<AppProps> = ({ options }) => {
     }
 
     // Perform the full page browser redirection
-    window.location.href = `${baseReturnUrl}`;
+
+    window.history.pushState({}, "", `${baseReturnUrl}`);
+    window.dispatchEvent(new PopStateEvent("popstate"));
   };
 
   // 2. Triggers the redirection automatic timer when paymentStatus changes to 'success'
