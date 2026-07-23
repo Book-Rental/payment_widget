@@ -52,7 +52,7 @@ const App: React.FC<AppProps> = ({ options }) => {
     }
 
     // Perform the full page browser redirection
-    window.location.href = `${baseReturnUrl}?${params.toString()}`;
+    window.location.href = `${baseReturnUrl}`;
   };
 
   // 2. Triggers the redirection automatic timer when paymentStatus changes to 'success'
