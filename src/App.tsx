@@ -52,21 +52,33 @@ const App: React.FC<AppProps> = ({ options }) => {
     }
 
     // Perform the full page browser redirection
-
     window.history.pushState({}, "", `${baseReturnUrl}`);
     window.dispatchEvent(new PopStateEvent("popstate"));
   };
 
-  // 2. Triggers the redirection automatic timer when paymentStatus changes to 'success'
+  // 2. Triggers the event dispatch and redirection automatic timer when paymentStatus changes to 'success'
   useEffect(() => {
     if (paymentStatus === 'success') {
+
+      // CREATE AND DISPATCH THE CUSTOM EVENT
+      const paymentEvent = new CustomEvent("payment-widget-success", {
+        detail: {
+          status: "success",
+          amount: options.price,
+          currency: options.currency || "INR",
+          paymentMethod: stateRef.current.selectedPayment,
+          transactionId: stateRef.current.transactionId,
+        },
+      });
+      window.dispatchEvent(paymentEvent);
+
       const redirectTimer = setTimeout(() => {
         handleReturnToWebsite();
       }, 2000); // 2-second visual confirmation window delay
 
       return () => clearTimeout(redirectTimer);
     }
-  }, [paymentStatus]);
+  }, [paymentStatus, options.price, options.currency]); // Added critical dependency array items
 
   if (paymentStatus === 'processing') {
     return <ProcessingScreen price={options.price} />;
